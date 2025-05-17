@@ -5,7 +5,7 @@ import com.aira.backend.contracts.RegisterRequest;
 import com.aira.backend.domain.model.Role;
 import com.aira.backend.domain.model.User;
 import com.aira.backend.data.UserRepository;
-import com.aira.backend.security.JwtTokenProvider;
+import com.aira.backend.infrastructure.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
