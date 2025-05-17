@@ -9,6 +9,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
 
 @Component
@@ -29,22 +30,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
             token = header.substring(7);
+            System.out.println("[JWT] Bearer token found: " + token);
+        } else {
+            System.out.println("[JWT] No valid Authorization header found");
         }
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            String userId = jwtTokenProvider.getUserIdFromToken(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+            String email = jwtTokenProvider.getEmailFromToken(token);
+            System.out.println("[JWT] Token is valid. Extracted email: " + email);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            System.out.println("[JWT] Loaded user details: " + userDetails.getUsername());
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
+
+            System.out.println("[JWT] Security context set for user: " + email);
+        } else if (token != null) {
+            System.out.println("[JWT] Token is invalid or expired");
         }
 
         filterChain.doFilter(request, response);
     }
 }
+
 /**
  * JwtAuthenticationFilter is our quiet bouncer at the door
  * It checks every request for a valid token, gently unpacks it,
